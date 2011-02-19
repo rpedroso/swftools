@@ -497,8 +497,15 @@ void handleEditText(TAG*tag)
       tag->readBit = 0; 
     }
     flags = swf_GetBits(tag,16);
+    if(flags & ET_HASFONT && flags & ET_HASFONTCLASS) {
+        dumperror("HASFONT and HASFONTCLASS cannot be both defined.\n");
+    }
     if(flags & ET_HASFONT) {
 	swf_GetU16(tag); //font
+	swf_GetU16(tag); //fontheight
+    }
+    if(flags & ET_HASFONTCLASS) {
+        swf_GetString(tag); //fontclass
 	swf_GetU16(tag); //fontheight
     }
     if(flags & ET_HASTEXTCOLOR) {
@@ -522,12 +529,8 @@ void handleEditText(TAG*tag)
     if(flags & ET_NOSELECT) printf("(noselect)");
     if(flags & ET_PASSWORD) printf("(password)");
     if(flags & ET_READONLY) printf("(readonly)");
+    if(flags & ET_WASSTATIC) printf("(wasstatic)");
 
-    if(flags & (ET_X1 | ET_X3 ))
-    {
-	printf(" undefined flags: %08x (%08x)", (flags&(ET_X1|ET_X3)), flags);
-    }
-    
     while(tag->data[tag->pos++]);
     if(flags & ET_HASTEXT)
    //  printf(" text \"%s\"\n", &tag->data[tag->pos]) //TODO

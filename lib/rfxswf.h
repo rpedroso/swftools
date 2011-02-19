@@ -602,11 +602,13 @@ typedef struct _SWFFONT
 #define ET_HASMAXLENGTH 512
 #define ET_HASFONT 256
 #define ET_X3 128
+#define ET_HASFONTCLASS 128
 #define ET_AUTOSIZE 64 /* MX */
 #define ET_HASLAYOUT 32
 #define ET_NOSELECT 16
 #define ET_BORDER 8
 #define ET_X1 4
+#define ET_WASSTATIC 4
 #define ET_HTML 2 /* MX? */
 #define ET_USEOUTLINES 1
 
