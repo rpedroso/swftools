@@ -181,7 +181,7 @@ static void readline(FILE*fi, char*line, int maxlen) {
     }
 }
 
-int getFloat(char*s)
+float getFloat(char*s)
 {
     float x;
     int n;
