@@ -2,6 +2,7 @@
 #include <memory.h>
 #include <math.h>
 #include <limits.h>
+#include <time.h>
 #include "../mem.h"
 #include "../types.h"
 #include "poly.h"
@@ -41,7 +42,7 @@ void gfxpoly_fail(char*expr, char*file, int line, const char*function)
     sprintf(filename, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x.ps",
 	    h[0],h[1],h[2],h[3],h[4],h[5],h[6],h[7],h[8],h[9],h[10],h[11],h[12],h[13],h[14],h[15]);
 #else
-    sprintf(filename, "%d", time(0));
+    sprintf(filename, "%d", (int)time(0));
 #endif
 
     fprintf(stderr, "assert(%s) failed in %s in line %d: %s\n", expr, file, line, function);
@@ -1630,11 +1631,5 @@ double gfxpoly_intersection_area(gfxpoly_t*p1, gfxpoly_t*p2)
     gfxpoly_destroy(p3);
 
     moments_normalize(&moments, p1->gridsize);
-
-    printf("%f %f %f\n",
-            moments.m[0][0],
-            moments.m[1][0],
-            moments.m[2][0]);
-
     return moments.area * p1->gridsize * p2->gridsize;
 }

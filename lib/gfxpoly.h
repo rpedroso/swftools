@@ -33,7 +33,7 @@ extern "C" {
 #include "gfxtools.h"
 
 /* A "grid" value is the granularity at which polygon intersection operates.
-   It usually makes sense this to the smallest value that can actually be represented
+   It usually makes sense to set this to the smallest value that can actually be represented
    in the output device (like 0.05 = 1 twip for SWF).  */
 #define DEFAULT_GRID (0.05)
 
@@ -49,6 +49,10 @@ gfxpoly_t* gfxpoly_from_stroke(gfxline_t*line, gfxcoord_t width, gfx_capType cap
 /* operators */
 gfxpoly_t* gfxpoly_intersect(gfxpoly_t*p1, gfxpoly_t*p2);
 gfxpoly_t* gfxpoly_union(gfxpoly_t*p1, gfxpoly_t*p2);
+
+/* area functions */
+double gfxpoly_area(gfxpoly_t*p);
+double gfxpoly_intersection_area(gfxpoly_t*p1, gfxpoly_t*p2);
 
 /* conversion functions */
 gfxpoly_t* gfxpoly_createbox(double x1, double y1,double x2, double y2, double gridsize);
