@@ -57,6 +57,7 @@ static void pass1_startpage(gfxfilter_t*f, int width, int height, gfxdevice_t*ou
 static void pass1_endpage(gfxfilter_t*f, gfxdevice_t*out)
 {
     internal_t*i = (internal_t*)f->internal;
+    i->render.endpage(&i->render);
     out->endpage(out);
     gfxresult_t*result = i->render.finish(&i->render);
 
@@ -67,9 +68,9 @@ static void pass1_endpage(gfxfilter_t*f, gfxdevice_t*out)
         i->last_page->next = page;
         i->last_page = page;
     }
-    page->size = i->count;
+    page->size = i->count + 1;
     page->size8 = (page->size+7) >> 3;
-    page->visible = (uint8_t*)malloc(page->size8);
+    page->visible = (uint8_t*)rfx_calloc(page->size8);
 
     gfximage_t*img = (gfximage_t*)result->get(result, "page0");
     int size = img->width*img->height;
@@ -119,7 +120,9 @@ static void pass1_endclip(gfxfilter_t*f, gfxdevice_t*out)
 static void pass1_addfont(gfxfilter_t*f, gfxfont_t*font, gfxdevice_t*out)
 {
     internal_t*i = (internal_t*)f->internal;
-    i->render.addfont(&i->render, font);
+    /* Don't pass this to device->render(). We're not in a page
+       yet, and the render device doesn't need addfont() */
+    //i->render.addfont(&i->render, font);
     out->addfont(out, font);
 }
 static void pass1_drawchar(gfxfilter_t*f, gfxfont_t*font, int glyphnr, gfxcolor_t*color, gfxmatrix_t*matrix, gfxdevice_t*out)
@@ -128,7 +131,14 @@ static void pass1_drawchar(gfxfilter_t*f, gfxfont_t*font, int glyphnr, gfxcolor_
     i->count++;
     gfxcolor_t c;
     *(uint32_t*)&c = i->count<<8|0xff;
-    i->render.drawchar(&i->render, font, glyphnr, &c, matrix);
+
+    //i->render.drawchar(&i->render, font, glyphnr, &c, matrix);
+    double advance = font->glyphs[glyphnr].advance;
+    gfxline_t*box = gfxline_makerectangle(0,0,advance,font->ascent);
+    gfxline_transform(box, matrix);
+    i->render.fill(&i->render, box, &c);
+    gfxline_free(box);
+
     out->drawchar(out, font, glyphnr, color, matrix);
 }
 static gfxresult_t*pass1_finish(gfxfilter_t*f, gfxdevice_t*out)
@@ -157,6 +167,7 @@ static void pass2_addfont(gfxfilter_t*f, gfxfont_t*font, gfxdevice_t*out)
 static void pass2_drawchar(gfxfilter_t*f, gfxfont_t*font, int glyphnr, gfxcolor_t*color, gfxmatrix_t*matrix, gfxdevice_t*out)
 {
     internal_t*i = (internal_t*)f->internal;
+    i->count++;
     if(i->current_page->visible[i->count>>3]&(1<<(i->count&7))) {
         out->drawchar(out, font, glyphnr, color, matrix);
     }
